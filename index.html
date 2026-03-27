@@ -172,6 +172,45 @@
       margin-top: 10px;
     }
 
+    .options-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      align-self: flex-start;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .option-btn {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a1a1a;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .option-btn:hover {
+      background: #f4f4f4;
+      border-color: #bbb;
+    }
+
+    .option-btn.selected {
+      background: #1a1a1a;
+      color: #fff;
+      border-color: #1a1a1a;
+    }
+
+    .option-btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
     @media (max-width: 480px) {
       header { padding: 20px; }
       header h1 { font-size: 18px; }
@@ -425,17 +464,79 @@ After outputting JSON say:
 
   sendBtn.addEventListener('click', handleSend);
 
+  // ─── OPTION DETECTION ─────────────────────────────────────────────────────
+  // Matches lines like "A — ...", "B — ...", "A - ...", "A) ..." etc.
+  const OPTION_RE = /^([A-E])\s*[—\-–)]\s*(.+)$/;
+
+  function parseOptions(text) {
+    const lines = text.split('\n');
+    const options = [];
+    const nonOptionLines = [];
+    let inOptions = false;
+
+    for (const line of lines) {
+      const m = line.trim().match(OPTION_RE);
+      if (m) {
+        options.push({ letter: m[1], label: m[2].trim(), full: line.trim() });
+        inOptions = true;
+      } else {
+        nonOptionLines.push(line);
+      }
+    }
+
+    // Only treat as options if we found 2+ lettered choices
+    if (options.length >= 2) {
+      return { prose: nonOptionLines.join('\n').trim(), options };
+    }
+    return { prose: text, options: [] };
+  }
+
   // ─── RENDER HELPERS ───────────────────────────────────────────────────────
   function appendMessage(role, text) {
     const wrapper = document.createElement('div');
     wrapper.classList.add('msg', role);
-    const bubble = document.createElement('div');
-    bubble.classList.add('bubble');
-    bubble.textContent = text;
-    wrapper.appendChild(bubble);
+
+    if (role === 'assistant') {
+      const { prose, options } = parseOptions(text);
+
+      if (prose) {
+        const bubble = document.createElement('div');
+        bubble.classList.add('bubble');
+        bubble.textContent = prose;
+        wrapper.appendChild(bubble);
+      }
+
+      if (options.length) {
+        const optRow = document.createElement('div');
+        optRow.classList.add('options-row');
+
+        options.forEach(({ letter, label, full }) => {
+          const btn = document.createElement('button');
+          btn.classList.add('option-btn');
+          btn.textContent = `${letter} — ${label}`;
+          btn.addEventListener('click', () => {
+            if (intakeComplete) return;
+            // Disable all buttons in this group
+            optRow.querySelectorAll('.option-btn').forEach(b => {
+              b.disabled = true;
+            });
+            btn.classList.add('selected');
+            submitUserMessage(full);
+          });
+          optRow.appendChild(btn);
+        });
+
+        wrapper.appendChild(optRow);
+      }
+    } else {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      bubble.textContent = text;
+      wrapper.appendChild(bubble);
+    }
+
     messagesEl.appendChild(wrapper);
     scrollToBottom();
-    return bubble;
   }
 
   function showTyping() {
@@ -507,16 +608,13 @@ After outputting JSON say:
     return data.content?.[0]?.text || '';
   }
 
-  // ─── MAIN SEND HANDLER ────────────────────────────────────────────────────
-  async function handleSend() {
-    const userText = inputEl.value.trim();
-    if (!userText || intakeComplete) return;
+  // ─── SHARED SUBMIT LOGIC ──────────────────────────────────────────────────
+  async function submitUserMessage(text) {
+    if (!text || intakeComplete) return;
 
-    appendMessage('user', userText);
-    conversationHistory.push({ role: 'user', content: userText });
+    appendMessage('user', text);
+    conversationHistory.push({ role: 'user', content: text });
 
-    inputEl.value = '';
-    inputEl.style.height = 'auto';
     sendBtn.disabled = true;
     showTyping();
 
@@ -524,18 +622,14 @@ After outputting JSON say:
       const reply = await callBackend(conversationHistory);
       removeTyping();
 
-      // Check for JSON before displaying to strip block from visible text
       const jsonData = extractIntakeJSON(reply);
       let visibleReply = reply;
 
       if (jsonData) {
-        // Remove the JSON block from visible message
         const start = reply.indexOf('INTAKE_JSON_START');
         const end   = reply.indexOf('INTAKE_JSON_END') + 'INTAKE_JSON_END'.length;
         visibleReply = (reply.slice(0, start) + reply.slice(end)).trim();
         intakeComplete = true;
-
-        // Send email in background
         sendIntakeEmail(jsonData);
       }
 
@@ -548,6 +642,7 @@ After outputting JSON say:
         inputEl.placeholder = 'Intake complete.';
       } else {
         sendBtn.disabled = false;
+        inputEl.focus();
       }
 
     } catch (err) {
@@ -556,6 +651,15 @@ After outputting JSON say:
       console.error(err);
       sendBtn.disabled = false;
     }
+  }
+
+  // ─── MAIN SEND HANDLER ────────────────────────────────────────────────────
+  async function handleSend() {
+    const userText = inputEl.value.trim();
+    if (!userText || intakeComplete) return;
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    await submitUserMessage(userText);
   }
 
   // ─── BOOT: SEND OPENING MESSAGE ───────────────────────────────────────────
