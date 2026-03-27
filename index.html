@@ -1185,8 +1185,15 @@ After outputting JSON say:
     }
   }
 
-  // ─── CALL BACKEND ─────────────────────────────────────────────────────────
-  async function callBackend(messages) {
+  // ─── CALL BACKEND (with auto-retry on overload) ───────────────────────────
+  async function callBackend(messages, attempt = 1) {
+    const MAX_ATTEMPTS = 4;
+    const RETRY_DELAYS = [0, 2000, 4000, 8000]; // ms to wait before each attempt
+
+    if (attempt > 1) {
+      await new Promise(r => setTimeout(r, RETRY_DELAYS[attempt - 1]));
+    }
+
     const response = await fetch('/.netlify/functions/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1196,7 +1203,20 @@ After outputting JSON say:
     if (!response.ok) throw new Error(`Backend error: ${response.status}`);
 
     const data = await response.json();
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+    if (data.error) {
+      const msg  = (data.error.message || '').toLowerCase();
+      const type = (data.error.type   || '').toLowerCase();
+      const isOverloaded = type.includes('overload') || msg.includes('overload');
+
+      if (isOverloaded && attempt < MAX_ATTEMPTS) {
+        console.warn(`API overloaded — retrying (attempt ${attempt + 1}/${MAX_ATTEMPTS})…`);
+        return callBackend(messages, attempt + 1);
+      }
+
+      throw new Error(data.error.message || JSON.stringify(data.error));
+    }
+
     return data.content?.[0]?.text || '';
   }
 
