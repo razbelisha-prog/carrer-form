@@ -37,6 +37,140 @@
       color: #1a1a1a;
     }
 
+    /* ── INTAKE OPENING PANEL ─────────────────────────────────────────────── */
+    #intake-panel {
+      width: 100%;
+      max-width: 720px;
+      padding: 40px 24px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .intake-lead {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: #1a1a1a;
+      margin-bottom: 32px;
+    }
+
+    .intake-lead span {
+      color: #888;
+      font-weight: 400;
+    }
+
+    .intake-section {
+      margin-bottom: 28px;
+    }
+
+    .intake-section label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .intake-section label .optional {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: #999;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
+    .upload-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .upload-btn {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      color: #444;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .upload-btn:hover { background: #f5f5f5; border-color: #bbb; }
+
+    .upload-or {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .upload-filename {
+      font-size: 12px;
+      color: #22a06b;
+      font-style: italic;
+    }
+
+    #resume-file { display: none; }
+
+    .intake-textarea {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #fff;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+      min-height: 120px;
+    }
+
+    .intake-textarea:focus { border-color: #999; }
+    .intake-textarea::placeholder { color: #bbb; }
+
+    #jd-text { min-height: 100px; }
+
+    .jd-hint {
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 6px;
+    }
+
+    #start-btn {
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      align-self: flex-start;
+      margin-top: 4px;
+    }
+
+    #start-btn:hover { background: #333; }
+    #start-btn:disabled { background: #ccc; cursor: default; }
+
+    .start-error {
+      font-size: 13px;
+      color: #c0392b;
+      margin-top: 10px;
+    }
+
+    /* ── CHAT ─────────────────────────────────────────────────────────────── */
     #chat-wrapper {
       width: 100%;
       max-width: 720px;
@@ -44,6 +178,7 @@
       display: flex;
       flex-direction: column;
       padding: 32px 24px 0;
+      display: none;
     }
 
     #messages {
@@ -113,6 +248,108 @@
       30% { transform: translateY(-6px); }
     }
 
+    /* ── MULTI-SELECT OPTIONS ─────────────────────────────────────────────── */
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      align-self: flex-start;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .option-btn {
+      background: #fff;
+      border: 1.5px solid #ddd;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a1a1a;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .option-btn .check {
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid #ccc;
+      border-radius: 5px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+      font-size: 11px;
+      color: transparent;
+    }
+
+    .option-btn:hover { background: #f7f7f7; border-color: #bbb; }
+    .option-btn:hover .check { border-color: #999; }
+
+    .option-btn.selected {
+      background: #f0f0f0;
+      border-color: #1a1a1a;
+    }
+
+    .option-btn.selected .check {
+      background: #1a1a1a;
+      border-color: #1a1a1a;
+      color: #fff;
+    }
+
+    .option-btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .other-input {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a1a1a;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+      display: none;
+    }
+
+    .other-input:focus { border-color: #999; }
+    .other-input.visible { display: block; }
+
+    .confirm-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .confirm-btn {
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: none;
+    }
+
+    .confirm-btn.visible { display: inline-block; }
+    .confirm-btn:hover { background: #333; }
+    .confirm-btn:disabled { background: #ccc; cursor: default; }
+
+    /* ── INPUT BAR ────────────────────────────────────────────────────────── */
     #input-area {
       position: sticky;
       bottom: 0;
@@ -172,50 +409,24 @@
       margin-top: 10px;
     }
 
-    .options-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 10px;
-      align-self: flex-start;
+    /* ── BOTTOM INPUT WRAPPER ─────────────────────────────────────────────── */
+    #input-wrapper {
       width: 100%;
-      max-width: 480px;
-    }
-
-    .option-btn {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 10px 16px;
-      font-size: 14px;
-      font-family: 'DM Sans', sans-serif;
-      color: #1a1a1a;
-      cursor: pointer;
-      text-align: left;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .option-btn:hover {
-      background: #f4f4f4;
-      border-color: #bbb;
-    }
-
-    .option-btn.selected {
-      background: #1a1a1a;
-      color: #fff;
-      border-color: #1a1a1a;
-    }
-
-    .option-btn:disabled {
-      opacity: 0.45;
-      cursor: default;
+      max-width: 720px;
+      padding: 0 24px;
+      position: sticky;
+      bottom: 0;
+      background: #fafafa;
+      display: none;
     }
 
     @media (max-width: 480px) {
       header { padding: 20px; }
       header h1 { font-size: 18px; }
+      #intake-panel { padding: 28px 16px 40px; }
       #chat-wrapper { padding: 20px 16px 0; }
       .msg { max-width: 92%; }
+      .intake-lead { font-size: 21px; }
     }
   </style>
 </head>
@@ -225,11 +436,37 @@
   <h1>Raz Belisha — Client Intake</h1>
 </header>
 
+<!-- ── OPENING PANEL ──────────────────────────────────────────────────────── -->
+<div id="intake-panel">
+  <p class="intake-lead">Let's build your resume.<br><span>Share your experience and the roles you're going after.</span></p>
+
+  <div class="intake-section">
+    <label>Your Resume</label>
+    <div class="upload-row">
+      <button class="upload-btn" onclick="document.getElementById('resume-file').click()">📎 Upload file (.txt, .pdf)</button>
+      <span class="upload-or">or paste below</span>
+      <span class="upload-filename" id="upload-filename"></span>
+    </div>
+    <input type="file" id="resume-file" accept=".txt,.pdf,.doc,.docx" />
+    <textarea class="intake-textarea" id="resume-text" placeholder="Paste your resume text here — work history, skills, education, anything you have…" rows="6"></textarea>
+  </div>
+
+  <div class="intake-section">
+    <label>Job Descriptions <span class="optional">1–3 positions you're targeting</span></label>
+    <textarea class="intake-textarea" id="jd-text" placeholder="Paste the full text of the job postings you're most interested in. The more detail the better." rows="5"></textarea>
+    <p class="jd-hint">You can paste multiple postings one after another — just separate them with a blank line.</p>
+  </div>
+
+  <button id="start-btn">Begin Intake →</button>
+  <p class="start-error" id="start-error" style="display:none;"></p>
+</div>
+
+<!-- ── CHAT ───────────────────────────────────────────────────────────────── -->
 <div id="chat-wrapper">
   <div id="messages"></div>
 </div>
 
-<div style="width:100%;max-width:720px;padding:0 24px;position:sticky;bottom:0;background:#fafafa;">
+<div id="input-wrapper">
   <div id="input-area">
     <div id="input-row">
       <textarea id="user-input" rows="1" placeholder="Type your message…"></textarea>
@@ -257,62 +494,63 @@ You ask one thing at a time. You never rush. You never overwhelm.
 ## CRITICAL RULES
 1. You NEVER build a resume. Ever. If asked: "That part is handled personally by Raz."
 2. You NEVER show scores, grades, or gap analysis to the client.
-3. You ALWAYS give options derived from the resume — never generic defaults.
+3. You ALWAYS give options derived from the resume and job descriptions — never generic defaults.
 4. You go one phase at a time. Never jump ahead.
 5. You NEVER mention Claude, Anthropic, AI, or that this is automated.
 6. When intake is complete, output the JSON block exactly as specified.
+7. Options you present must ALWAYS be in the format: "A — [text]", "B — [text]", etc. so they can be clicked.
+8. The user can select MULTIPLE options at once. If they respond with something like "A and C" or "A, B", treat all selected options as their answer.
 
-## PHASE 0+1 — OPENING
-Your very first message must be exactly:
-"Welcome to the Raz Belisha Client Form.
-To get started, please paste your resume text below, or type out your experience and I'll guide you from there."
+## PHASE 1 — FIRST MESSAGE (resume + job descriptions already provided)
+The user's first message contains their resume AND the job descriptions they are targeting.
+Do NOT ask them to share anything again. They've already done it.
 
-Once they share resume, detect language:
-- Hebrew content / Israeli companies / Israeli universities / Israeli phone → respond in Hebrew
+Detect language from resume:
+- Hebrew content / Israeli companies / Israeli universities / Israeli phone → respond in Hebrew for the rest of the conversation
 - Otherwise → respond in English
 Never ask about language. Just switch naturally.
 
 ## PHASE 2 — SILENT ANALYSIS
-Internally extract: title, industry, seniority, skills, tools, achievements, education.
-Store everything. Show nothing. Move to Phase 3.
+Internally extract from the resume: title, industry, seniority, skills, tools, achievements, education.
+Internally extract from the job descriptions: target role title, required seniority, key requirements, important keywords.
+Cross-reference resume vs JDs: sort keywords into confirmed / possible / missing.
+Store everything. Show nothing to the client. Move directly to Phase 3.
 
-## PHASE 3 — TARGET ROLE + SENIORITY
-Offer specific options based ONLY on resume content:
-"Based on your resume, which best describes the role you're targeting?
-A — [Most likely role based on resume]
-B — [Second likely option]
-C — [Adjacent role]
-D — Something else (tell me)"
+## PHASE 3 — CONFIRM TARGET ROLE + SENIORITY
+Based on the job descriptions provided (primary signal) and the resume (secondary signal), identify the most likely target role and seniority.
+Present options derived ONLY from what was shared:
 
-Then immediately ask seniority:
+"Based on what you've shared, here's what I'm seeing:
+A — [Most likely role title, derived from JDs]
+B — [Second option if the JDs suggest multiple roles, or an adjacent role from resume]
+C — [Adjacent possibility]
+D — Something different (tell me)"
+
+Allow multi-select — they may be open to more than one direction.
+
+Immediately after role, ask seniority in the same message:
 "And what level are you targeting?
-A — [Detected level]
+A — [Detected seniority from JDs]
 B — [One level up]
-C — [Two levels up]
+C — [One level down, if relevant]
 D — Other"
 
-## PHASE 4 — TARGET JOB DESCRIPTIONS
-"Now share the job descriptions you're most interested in — paste 1 to 3 positions. Copy the full text of each."
-Extract silently: title, company, raw JD, keywords.
-Cross-reference against resume. Sort: confirmed / possible / missing.
-Never show this analysis to the client.
-
 ## PHASE 5A — QUANTIFY ACHIEVEMENTS
-Go through achievements lacking numbers. Reference exact resume text:
+Go through achievements from the resume that lack specific numbers. Reference exact resume text:
 "You wrote: '[exact text from resume]' — can we add a number?
 A — Yes, I can give users/downloads/revenue
 B — Yes, I can give growth percentage
 C — Yes, I can give timeframe or team size
 D — I don't have a number for this one"
-If A/B/C — ask: "Great — what's the number?"
+If A/B/C selected — ask: "What's the number?"
 Store as achievements_quantified.
 
 ## PHASE 5B — ACADEMIC (only if resume shows education)
-"A quick question about your studies at [institution] — what was your GPA?"
+"A quick question about your studies at [institution] — what was your GPA?
 A — Prefer not to share
 B — Below average, skip it
-C — [Number]
-If strong: "Any courses above 90, honors, or academic prizes?"
+C — [Number] (I'll type it)"
+If strong GPA mentioned: "Any courses above 90, honors, or academic prizes?"
 
 ## PHASE 5C — KEYWORD GAP INTERVIEW
 For keywords in the "possible" bucket — max 8-10 questions:
@@ -322,15 +560,16 @@ B — Familiar, used something similar
 C — Heard of it, no real experience
 D — Never worked with it"
 A → keywords_approved
-B → keywords_partial (note: "familiar, adjacent experience")
+B → keywords_partial
 C/D → keywords_missing
 NEVER tell the client they are missing something.
 
 ## PHASE 5D — PERSONAL LAYER
 "Almost done — a few questions that make the resume feel human and personal."
 
-1. "Is there anything you've built or worked on that isn't on your resume?"
-   A — Yes (tell me) / B — Nothing comes to mind
+1. "Is there anything you've built or worked on that isn't on your resume?
+   A — Yes (tell me below)
+   B — Nothing comes to mind"
 
 2. "What do you do outside of work? Hobbies, passions, activities?" (free text)
 
@@ -444,10 +683,106 @@ After outputting JSON say:
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
   // ─── DOM REFS ─────────────────────────────────────────────────────────────
-  const messagesEl  = document.getElementById('messages');
-  const inputEl     = document.getElementById('user-input');
-  const sendBtn     = document.getElementById('send-btn');
-  const statusNote  = document.getElementById('status-note');
+  const messagesEl    = document.getElementById('messages');
+  const inputEl       = document.getElementById('user-input');
+  const sendBtn       = document.getElementById('send-btn');
+  const statusNote    = document.getElementById('status-note');
+  const intakePanel   = document.getElementById('intake-panel');
+  const chatWrapper   = document.getElementById('chat-wrapper');
+  const inputWrapper  = document.getElementById('input-wrapper');
+  const startBtn      = document.getElementById('start-btn');
+  const startError    = document.getElementById('start-error');
+  const resumeFileEl  = document.getElementById('resume-file');
+  const resumeTextEl  = document.getElementById('resume-text');
+  const jdTextEl      = document.getElementById('jd-text');
+  const uploadFilename = document.getElementById('upload-filename');
+
+  // ─── FILE UPLOAD ──────────────────────────────────────────────────────────
+  resumeFileEl.addEventListener('change', async () => {
+    const file = resumeFileEl.files[0];
+    if (!file) return;
+    uploadFilename.textContent = file.name;
+
+    // For text files, read directly. For PDF/doc, ask to paste instead.
+    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+      const text = await file.text();
+      resumeTextEl.value = text;
+      resumeTextEl.style.height = 'auto';
+      resumeTextEl.style.height = Math.min(resumeTextEl.scrollHeight, 300) + 'px';
+    } else {
+      // PDF/doc: can't read in-browser without a library — prompt to paste
+      uploadFilename.textContent = `${file.name} — please paste the text below`;
+      uploadFilename.style.color = '#e67e22';
+    }
+  });
+
+  // ─── START INTAKE ─────────────────────────────────────────────────────────
+  startBtn.addEventListener('click', async () => {
+    const resume = resumeTextEl.value.trim();
+    const jds    = jdTextEl.value.trim();
+
+    if (!resume) {
+      startError.textContent = 'Please paste your resume text before continuing.';
+      startError.style.display = 'block';
+      resumeTextEl.focus();
+      return;
+    }
+
+    startError.style.display = 'none';
+    startBtn.disabled = true;
+    startBtn.textContent = 'Starting…';
+
+    // Build first user message from the panel inputs
+    let firstMsg = `Here is my resume:\n\n${resume}`;
+    if (jds) {
+      firstMsg += `\n\n---\n\nHere are the job descriptions I'm targeting:\n\n${jds}`;
+    }
+
+    // Switch to chat view
+    intakePanel.style.display = 'none';
+    chatWrapper.style.display = 'flex';
+    inputWrapper.style.display = 'block';
+
+    // Show a truncated version of what was submitted as a user bubble
+    const preview = resume.slice(0, 120).replace(/\n+/g, ' ') + (resume.length > 120 ? '…' : '');
+    appendMessage('user', `📄 Resume shared${jds ? ' + job descriptions' : ''}\n"${preview}"`);
+
+    conversationHistory.push({ role: 'user', content: firstMsg });
+    showTyping();
+    sendBtn.disabled = true;
+
+    try {
+      const reply = await callBackend(conversationHistory);
+      removeTyping();
+
+      const jsonData = extractIntakeJSON(reply);
+      let visibleReply = reply;
+      if (jsonData) {
+        const start = reply.indexOf('INTAKE_JSON_START');
+        const end   = reply.indexOf('INTAKE_JSON_END') + 'INTAKE_JSON_END'.length;
+        visibleReply = (reply.slice(0, start) + reply.slice(end)).trim();
+        intakeComplete = true;
+        sendIntakeEmail(jsonData);
+      }
+
+      appendMessage('assistant', visibleReply);
+      conversationHistory.push({ role: 'assistant', content: reply });
+
+      if (intakeComplete) {
+        sendBtn.disabled = true;
+        inputEl.disabled = true;
+        inputEl.placeholder = 'Intake complete.';
+      } else {
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
+    } catch (err) {
+      removeTyping();
+      appendMessage('assistant', 'Something went wrong. Please refresh and try again.');
+      console.error(err);
+      sendBtn.disabled = false;
+    }
+  });
 
   // ─── AUTO-RESIZE TEXTAREA ─────────────────────────────────────────────────
   inputEl.addEventListener('input', () => {
@@ -467,24 +802,23 @@ After outputting JSON say:
   // ─── OPTION DETECTION ─────────────────────────────────────────────────────
   // Matches lines like "A — ...", "B — ...", "A - ...", "A) ..." etc.
   const OPTION_RE = /^([A-E])\s*[—\-–)]\s*(.+)$/;
+  // Detect "other/else/tell me" options (user will need a free-text field)
+  const OTHER_RE  = /tell me|something (else|different|other)|other|אחר|ספר/i;
 
   function parseOptions(text) {
     const lines = text.split('\n');
     const options = [];
     const nonOptionLines = [];
-    let inOptions = false;
 
     for (const line of lines) {
       const m = line.trim().match(OPTION_RE);
       if (m) {
         options.push({ letter: m[1], label: m[2].trim(), full: line.trim() });
-        inOptions = true;
       } else {
         nonOptionLines.push(line);
       }
     }
 
-    // Only treat as options if we found 2+ lettered choices
     if (options.length >= 2) {
       return { prose: nonOptionLines.join('\n').trim(), options };
     }
@@ -507,26 +841,86 @@ After outputting JSON say:
       }
 
       if (options.length) {
-        const optRow = document.createElement('div');
-        optRow.classList.add('options-row');
+        const group = document.createElement('div');
+        group.classList.add('options-group');
 
-        options.forEach(({ letter, label, full }) => {
+        const selected = new Set();
+
+        // Other text input (hidden until an "other" option is selected)
+        const otherInput = document.createElement('input');
+        otherInput.type = 'text';
+        otherInput.placeholder = 'Tell me more…';
+        otherInput.classList.add('other-input');
+
+        // Confirm button
+        const confirmRow = document.createElement('div');
+        confirmRow.classList.add('confirm-row');
+        const confirmBtn = document.createElement('button');
+        confirmBtn.classList.add('confirm-btn');
+        confirmBtn.textContent = 'Confirm →';
+        confirmRow.appendChild(confirmBtn);
+
+        const updateUI = () => {
+          const hasOther = [...selected].some(k => {
+            const opt = options.find(o => o.letter === k);
+            return opt && OTHER_RE.test(opt.label);
+          });
+          otherInput.classList.toggle('visible', hasOther);
+          confirmBtn.classList.toggle('visible', selected.size > 0);
+        };
+
+        options.forEach(({ letter, label }) => {
           const btn = document.createElement('button');
           btn.classList.add('option-btn');
-          btn.textContent = `${letter} — ${label}`;
+
+          const check = document.createElement('span');
+          check.classList.add('check');
+          check.textContent = '✓';
+
+          btn.appendChild(check);
+          btn.appendChild(document.createTextNode(`${letter} — ${label}`));
+
           btn.addEventListener('click', () => {
             if (intakeComplete) return;
-            // Disable all buttons in this group
-            optRow.querySelectorAll('.option-btn').forEach(b => {
-              b.disabled = true;
-            });
-            btn.classList.add('selected');
-            submitUserMessage(full);
+            if (selected.has(letter)) {
+              selected.delete(letter);
+              btn.classList.remove('selected');
+            } else {
+              selected.add(letter);
+              btn.classList.add('selected');
+            }
+            updateUI();
           });
-          optRow.appendChild(btn);
+
+          group.appendChild(btn);
         });
 
-        wrapper.appendChild(optRow);
+        group.appendChild(otherInput);
+        group.appendChild(confirmRow);
+
+        // Confirm handler
+        confirmBtn.addEventListener('click', () => {
+          if (intakeComplete || selected.size === 0) return;
+
+          // Lock all buttons
+          group.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+          otherInput.disabled = true;
+          confirmBtn.disabled = true;
+
+          // Build the message
+          const parts = [...selected].sort().map(letter => {
+            const opt = options.find(o => o.letter === letter);
+            return opt ? `${opt.letter} — ${opt.label}` : letter;
+          });
+
+          const otherText = otherInput.value.trim();
+          let message = parts.join(', ');
+          if (otherText) message += ` — ${otherText}`;
+
+          submitUserMessage(message);
+        });
+
+        wrapper.appendChild(group);
       }
     } else {
       const bubble = document.createElement('div');
@@ -563,18 +957,13 @@ After outputting JSON say:
     const end   = text.indexOf('INTAKE_JSON_END');
     if (start === -1 || end === -1) return null;
     const raw = text.slice(start + 'INTAKE_JSON_START'.length, end).trim();
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
+    try { return JSON.parse(raw); } catch { return null; }
   }
 
   // ─── SEND EMAIL VIA EMAILJS ───────────────────────────────────────────────
   async function sendIntakeEmail(jsonData) {
     const jsonString = JSON.stringify(jsonData, null, 2);
     const clientName = jsonData?.identity?.name || 'Unknown Client';
-
     try {
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         to_email:    RECIPIENT_EMAIL,
@@ -597,14 +986,10 @@ After outputting JSON say:
       body: JSON.stringify({ messages, system: SYSTEM_PROMPT }),
     });
 
-    if (!response.ok) {
-      throw new Error(`Backend error: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Backend error: ${response.status}`);
 
     const data = await response.json();
-
     if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-
     return data.content?.[0]?.text || '';
   }
 
@@ -661,28 +1046,6 @@ After outputting JSON say:
     inputEl.style.height = 'auto';
     await submitUserMessage(userText);
   }
-
-  // ─── BOOT: SEND OPENING MESSAGE ───────────────────────────────────────────
-  async function init() {
-    sendBtn.disabled = true;
-    showTyping();
-
-    try {
-      const opening = await callBackend([]);
-      removeTyping();
-      appendMessage('assistant', opening);
-      conversationHistory.push({ role: 'assistant', content: opening });
-      sendBtn.disabled = false;
-      inputEl.focus();
-    } catch (err) {
-      removeTyping();
-      appendMessage('assistant', 'Welcome to the Raz Belisha Client Form.\nTo get started, please paste your resume text below, or type out your experience and I\'ll guide you from there.');
-      sendBtn.disabled = false;
-      inputEl.focus();
-    }
-  }
-
-  init();
 </script>
 </body>
 </html>
