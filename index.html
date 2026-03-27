@@ -6,6 +6,10 @@
   <title>Raz Belisha — Career Form</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <!-- PDF text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Word (.docx) text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -820,30 +824,71 @@ After outputting JSON say:
   // Stores extracted text from uploaded file (if any)
   let uploadedResumeText = '';
 
+  // ─── FILE EXTRACTION HELPERS ──────────────────────────────────────────────
+  async function extractTextFromPDF(file) {
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ') + '\n';
+    }
+    return text.trim();
+  }
+
+  async function extractTextFromDocx(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return result.value.trim();
+  }
+
   // ─── FILE UPLOAD ──────────────────────────────────────────────────────────
   resumeFileEl.addEventListener('change', async () => {
     const file = resumeFileEl.files[0];
     if (!file) return;
 
-    uploadFilenameEl.textContent = file.name;
+    // Show upload zone in loading state
+    uploadZone.style.display      = 'none';
+    uploadConfirmed.style.display = 'flex';
+    uploadFilenameEl.textContent  = file.name;
+    uploadConfirmed.querySelector('.upload-success-sub').textContent = 'Reading file…';
+    pasteArea.style.display       = 'none';
+    pdfWarning.style.display      = 'none';
+    startError.style.display      = 'none';
 
-    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-      // .txt — read text directly, hide paste area
-      uploadedResumeText            = await file.text();
-      uploadZone.style.display      = 'none';
-      uploadConfirmed.style.display = 'flex';
-      pasteArea.style.display       = 'none';
-      pdfWarning.style.display      = 'none';
-    } else {
-      // PDF/doc — can't read in browser, show warning + keep paste area visible
-      uploadedResumeText            = '';
-      uploadZone.style.display      = 'none';
-      uploadConfirmed.style.display = 'flex';
-      pasteArea.style.display       = 'block';
-      pdfWarning.style.display      = 'block';
-      resumeTextEl.focus();
+    try {
+      const name = file.name.toLowerCase();
+      if (name.endsWith('.txt') || file.type === 'text/plain') {
+        uploadedResumeText = await file.text();
+      } else if (name.endsWith('.pdf') || file.type === 'application/pdf') {
+        uploadedResumeText = await extractTextFromPDF(file);
+      } else if (name.endsWith('.docx') ||
+                 file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        uploadedResumeText = await extractTextFromDocx(file);
+      } else if (name.endsWith('.doc')) {
+        // Older .doc format — mammoth may handle it, try anyway
+        uploadedResumeText = await extractTextFromDocx(file);
+      } else {
+        uploadedResumeText = await file.text();
+      }
+
+      if (!uploadedResumeText) throw new Error('No text found in file');
+
+      uploadConfirmed.querySelector('.upload-success-sub').textContent = 'Resume read successfully ✓';
+    } catch (err) {
+      // Extraction failed — fall back to paste
+      uploadedResumeText = '';
+      uploadConfirmed.querySelector('.upload-success-sub').textContent = 'Could not read file';
+      pasteArea.style.display  = 'block';
+      pdfWarning.style.display = 'block';
+      pdfWarning.querySelector('p').textContent =
+        '⚠️ Couldn\'t extract text from this file — please paste your resume text below.';
+      console.warn('File extraction error:', err);
     }
-    startError.style.display = 'none';
   });
 
   // ─── REMOVE FILE ──────────────────────────────────────────────────────────
