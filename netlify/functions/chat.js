@@ -14,18 +14,27 @@ exports.handler = async (event) => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',
+        model: 'claude-3-haiku-20240307',
         max_tokens: 1500,
         system,
         messages,
       }),
     });
 
-    const data = await response.json();
+    const rawText = await response.text();
+    console.log('HTTP status:', response.status);
+    console.log('Raw Anthropic response (first 500 chars):', rawText.slice(0, 500));
 
-    // Log errors from Anthropic for debugging
-    if (data.error) {
-      console.error('Anthropic API error:', JSON.stringify(data.error));
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseErr) {
+      console.error('Failed to parse Anthropic response:', rawText.slice(0, 300));
+      return {
+        statusCode: 500,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: { message: 'Invalid response from AI service' } }),
+      };
     }
 
     return {
@@ -37,7 +46,7 @@ exports.handler = async (event) => {
     console.error('Function error:', err.message);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ error: { message: err.message } }),
     };
   }
 };
