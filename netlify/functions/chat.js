@@ -14,7 +14,7 @@ exports.handler = async (event) => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-3-5-haiku-20241022',
         max_tokens: 1500,
         system,
         messages,
@@ -22,12 +22,19 @@ exports.handler = async (event) => {
     });
 
     const data = await response.json();
+
+    // Log errors from Anthropic for debugging
+    if (data.error) {
+      console.error('Anthropic API error:', JSON.stringify(data.error));
+    }
+
     return {
       statusCode: 200,
       headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify(data),
     };
   } catch (err) {
+    console.error('Function error:', err.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: err.message }),
