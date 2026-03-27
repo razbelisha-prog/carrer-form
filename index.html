@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Raz Belisha — Client Intake</title>
+  <title>Raz Belisha — Career Form</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <style>
@@ -91,30 +91,103 @@
       margin-bottom: 10px;
     }
 
-    .upload-btn {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-family: 'DM Sans', sans-serif;
-      color: #444;
+    /* Upload zone — idle state */
+    .upload-zone {
+      border: 1.5px dashed #ddd;
+      border-radius: 12px;
+      padding: 22px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
-      white-space: nowrap;
+      background: #fff;
+      margin-bottom: 12px;
     }
 
-    .upload-btn:hover { background: #f5f5f5; border-color: #bbb; }
+    .upload-zone:hover { border-color: #aaa; background: #fafafa; }
 
-    .upload-or {
-      font-size: 13px;
+    .upload-zone-icon {
+      font-size: 26px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .upload-zone-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .upload-zone-text span {
+      font-size: 12px;
       color: #aaa;
     }
 
-    .upload-filename {
+    /* Upload zone — file selected state */
+    .upload-zone.uploaded {
+      border-style: solid;
+      border-color: #22a06b;
+      background: #f6fef9;
+      cursor: default;
+    }
+
+    .upload-zone.uploaded:hover { background: #f6fef9; border-color: #22a06b; }
+
+    .upload-zone.uploaded .upload-zone-icon { font-size: 22px; }
+
+    .upload-success-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .upload-success-sub {
       font-size: 12px;
       color: #22a06b;
-      font-style: italic;
+    }
+
+    .upload-remove {
+      margin-left: auto;
+      font-size: 12px;
+      color: #aaa;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      transition: color 0.15s, background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .upload-remove:hover { color: #c0392b; background: #fff0ee; }
+
+    /* Paste divider — shown only when no file uploaded */
+    .paste-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .paste-divider::before,
+    .paste-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #eee;
+    }
+
+    .paste-divider span {
+      font-size: 11px;
+      color: #bbb;
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     #resume-file { display: none; }
@@ -140,10 +213,21 @@
 
     #jd-text { min-height: 100px; }
 
-    .jd-hint {
+    .jd-label {
       font-size: 12px;
-      color: #aaa;
-      margin-top: 6px;
+      font-weight: 500;
+      color: #888;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      margin-top: 14px;
+    }
+
+    .jd-label:first-of-type { margin-top: 0; }
+
+    .jd-label .optional {
+      font-weight: 400;
+      color: #bbb;
+      margin-left: 4px;
     }
 
     #start-btn {
@@ -433,28 +517,54 @@
 <body>
 
 <header>
-  <h1>Raz Belisha — Client Intake</h1>
+  <h1>Raz Belisha — Career Form</h1>
 </header>
 
 <!-- ── OPENING PANEL ──────────────────────────────────────────────────────── -->
 <div id="intake-panel">
-  <p class="intake-lead">Let's build your resume.<br><span>Share your experience and the roles you're going after.</span></p>
+  <p class="intake-lead">Raz Belisha Career Form.<br><span>Share your background and the roles you're going after.</span></p>
 
   <div class="intake-section">
     <label>Your Resume</label>
-    <div class="upload-row">
-      <button class="upload-btn" onclick="document.getElementById('resume-file').click()">📎 Upload file (.txt, .pdf)</button>
-      <span class="upload-or">or paste below</span>
-      <span class="upload-filename" id="upload-filename"></span>
-    </div>
     <input type="file" id="resume-file" accept=".txt,.pdf,.doc,.docx" />
-    <textarea class="intake-textarea" id="resume-text" placeholder="Paste your resume text here — work history, skills, education, anything you have…" rows="6"></textarea>
+
+    <!-- Upload zone (click to pick file) -->
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('resume-file').click()">
+      <div class="upload-zone-icon">📎</div>
+      <div class="upload-zone-text">
+        <strong>Upload your resume</strong>
+        <span>PDF, Word, or TXT</span>
+      </div>
+    </div>
+
+    <!-- Confirmed upload state (hidden until file picked) -->
+    <div class="upload-zone uploaded" id="upload-confirmed" style="display:none;">
+      <div class="upload-zone-icon">✅</div>
+      <div>
+        <div class="upload-success-name" id="upload-filename"></div>
+        <div class="upload-success-sub">Resume uploaded</div>
+      </div>
+      <button class="upload-remove" id="upload-remove-btn" type="button">✕ Remove</button>
+    </div>
+
+    <!-- Divider + paste textarea (hidden when file is uploaded) -->
+    <div id="paste-area">
+      <div class="paste-divider"><span>or paste your resume text</span></div>
+      <textarea class="intake-textarea" id="resume-text" placeholder="Paste your resume text here — work history, skills, education, anything you have…" rows="6"></textarea>
+    </div>
   </div>
 
   <div class="intake-section">
-    <label>Job Descriptions <span class="optional">1–3 positions you're targeting</span></label>
-    <textarea class="intake-textarea" id="jd-text" placeholder="Paste the full text of the job postings you're most interested in. The more detail the better." rows="5"></textarea>
-    <p class="jd-hint">You can paste multiple postings one after another — just separate them with a blank line.</p>
+    <label>Job Requirements <span class="optional">paste up to 3 positions you're targeting</span></label>
+
+    <p class="jd-label">Position 1</p>
+    <textarea class="intake-textarea jd-field" id="jd-1" placeholder="Paste the full job description here…" rows="4"></textarea>
+
+    <p class="jd-label">Position 2 <span class="optional">optional</span></p>
+    <textarea class="intake-textarea jd-field" id="jd-2" placeholder="Paste a second job description here…" rows="4"></textarea>
+
+    <p class="jd-label">Position 3 <span class="optional">optional</span></p>
+    <textarea class="intake-textarea jd-field" id="jd-3" placeholder="Paste a third job description here…" rows="4"></textarea>
   </div>
 
   <button id="start-btn">Begin Intake →</button>
@@ -690,41 +800,66 @@ After outputting JSON say:
   const intakePanel   = document.getElementById('intake-panel');
   const chatWrapper   = document.getElementById('chat-wrapper');
   const inputWrapper  = document.getElementById('input-wrapper');
-  const startBtn      = document.getElementById('start-btn');
-  const startError    = document.getElementById('start-error');
-  const resumeFileEl  = document.getElementById('resume-file');
-  const resumeTextEl  = document.getElementById('resume-text');
-  const jdTextEl      = document.getElementById('jd-text');
-  const uploadFilename = document.getElementById('upload-filename');
+  const startBtn          = document.getElementById('start-btn');
+  const startError        = document.getElementById('start-error');
+  const resumeFileEl      = document.getElementById('resume-file');
+  const resumeTextEl      = document.getElementById('resume-text');
+  const uploadZone        = document.getElementById('upload-zone');
+  const uploadConfirmed   = document.getElementById('upload-confirmed');
+  const uploadFilenameEl  = document.getElementById('upload-filename');
+  const uploadRemoveBtn   = document.getElementById('upload-remove-btn');
+  const pasteArea         = document.getElementById('paste-area');
+  const jdField1          = document.getElementById('jd-1');
+  const jdField2          = document.getElementById('jd-2');
+  const jdField3          = document.getElementById('jd-3');
+
+  // Stores extracted text from uploaded file (if any)
+  let uploadedResumeText = '';
 
   // ─── FILE UPLOAD ──────────────────────────────────────────────────────────
   resumeFileEl.addEventListener('change', async () => {
     const file = resumeFileEl.files[0];
     if (!file) return;
-    uploadFilename.textContent = file.name;
 
-    // For text files, read directly. For PDF/doc, ask to paste instead.
+    uploadFilenameEl.textContent = file.name;
+
     if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-      const text = await file.text();
-      resumeTextEl.value = text;
-      resumeTextEl.style.height = 'auto';
-      resumeTextEl.style.height = Math.min(resumeTextEl.scrollHeight, 300) + 'px';
+      // Read text directly
+      uploadedResumeText = await file.text();
     } else {
-      // PDF/doc: can't read in-browser without a library — prompt to paste
-      uploadFilename.textContent = `${file.name} — please paste the text below`;
-      uploadFilename.style.color = '#e67e22';
+      // PDF/doc — store file name; we'll use pasted text if provided
+      uploadedResumeText = `[Uploaded file: ${file.name}]`;
     }
+
+    // Show confirmation, hide upload zone and paste area
+    uploadZone.style.display      = 'none';
+    uploadConfirmed.style.display = 'flex';
+    pasteArea.style.display       = 'none';
+    startError.style.display      = 'none';
+  });
+
+  // ─── REMOVE FILE ──────────────────────────────────────────────────────────
+  uploadRemoveBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    uploadedResumeText        = '';
+    resumeFileEl.value        = '';
+    uploadZone.style.display      = 'flex';
+    uploadConfirmed.style.display = 'none';
+    pasteArea.style.display       = 'block';
   });
 
   // ─── START INTAKE ─────────────────────────────────────────────────────────
   startBtn.addEventListener('click', async () => {
-    const resume = resumeTextEl.value.trim();
-    const jds    = jdTextEl.value.trim();
+    const pastedResume = resumeTextEl.value.trim();
+    // Use uploaded file text if available, otherwise fall back to pasted text
+    const resume = uploadedResumeText || pastedResume;
+    const jd1    = jdField1.value.trim();
+    const jd2    = jdField2.value.trim();
+    const jd3    = jdField3.value.trim();
 
     if (!resume) {
-      startError.textContent = 'Please paste your resume text before continuing.';
+      startError.textContent = 'Please upload your resume or paste your text below.';
       startError.style.display = 'block';
-      resumeTextEl.focus();
       return;
     }
 
@@ -734,8 +869,12 @@ After outputting JSON say:
 
     // Build first user message from the panel inputs
     let firstMsg = `Here is my resume:\n\n${resume}`;
-    if (jds) {
-      firstMsg += `\n\n---\n\nHere are the job descriptions I'm targeting:\n\n${jds}`;
+    const jdParts = [jd1, jd2, jd3].filter(Boolean);
+    if (jdParts.length > 0) {
+      firstMsg += `\n\n---\n\nHere are the job descriptions I'm targeting:\n\n`;
+      jdParts.forEach((jd, i) => {
+        firstMsg += `Position ${i + 1}:\n${jd}\n\n`;
+      });
     }
 
     // Switch to chat view
@@ -745,7 +884,9 @@ After outputting JSON say:
 
     // Show a truncated version of what was submitted as a user bubble
     const preview = resume.slice(0, 120).replace(/\n+/g, ' ') + (resume.length > 120 ? '…' : '');
-    appendMessage('user', `📄 Resume shared${jds ? ' + job descriptions' : ''}\n"${preview}"`);
+    const jdCount = jdParts.length;
+    const jdNote  = jdCount > 0 ? ` + ${jdCount} job description${jdCount > 1 ? 's' : ''}` : '';
+    appendMessage('user', `📄 Resume shared${jdNote}\n"${preview}"`);
 
     conversationHistory.push({ role: 'user', content: firstMsg });
     showTyping();
