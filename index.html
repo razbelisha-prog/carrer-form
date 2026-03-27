@@ -337,6 +337,13 @@
     }
 
     /* ── MULTI-SELECT OPTIONS ─────────────────────────────────────────────── */
+    .options-hint {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 6px;
+      font-style: italic;
+    }
+
     .options-group {
       display: flex;
       flex-direction: column;
@@ -618,14 +625,9 @@ You ask one thing at a time. You never rush. You never overwhelm.
 7. Options you present must ALWAYS be in the format: "A — [text]", "B — [text]", etc. so they can be clicked.
 8. The user can select MULTIPLE options at once. If they respond with something like "A and C" or "A, B", treat all selected options as their answer.
 
-## PHASE 1 — FIRST MESSAGE (resume + job descriptions already provided)
-The user's first message contains their resume AND the job descriptions they are targeting.
-Do NOT ask them to share anything again. They've already done it.
-
-Detect language from resume:
-- Hebrew content / Israeli companies / Israeli universities / Israeli phone → respond in Hebrew for the rest of the conversation
-- Otherwise → respond in English
-Never ask about language. Just switch naturally.
+## LANGUAGE
+Always write in English. Every single message you send must be in English.
+You may add a note in your first response that they are welcome to answer in Hebrew or English — but you always reply in English regardless.
 
 ## PHASE 2 — SILENT ANALYSIS
 Internally extract from the resume: title, industry, seniority, skills, tools, achievements, education.
@@ -633,24 +635,28 @@ Internally extract from the job descriptions: target role title, required senior
 Cross-reference resume vs JDs: sort keywords into confirmed / possible / missing.
 Store everything. Show nothing to the client. Move directly to Phase 3.
 
-## PHASE 3 — CONFIRM TARGET ROLE + SENIORITY
-Based on the job descriptions provided (primary signal) and the resume (secondary signal), identify the most likely target role and seniority.
-Present options derived ONLY from what was shared:
+## PHASE 3A — CONFIRM TARGET ROLE
+Ask about role first. Wait for their answer before asking anything else.
+Based on the job descriptions (primary) and resume (secondary), present role options only:
 
-"Based on what you've shared, here's what I'm seeing:
-A — [Most likely role title, derived from JDs]
-B — [Second option if the JDs suggest multiple roles, or an adjacent role from resume]
-C — [Adjacent possibility]
+"Based on what you've shared, which role best describes what you're targeting?
+A — [Most likely role title from JDs]
+B — [Second option from JDs or adjacent role]
+C — [Adjacent possibility from resume]
 D — Something different (tell me)"
 
-Allow multi-select — they may be open to more than one direction.
+They can select one or multiple. Wait for their answer.
 
-Immediately after role, ask seniority in the same message:
-"And what level are you targeting?
+## PHASE 3B — CONFIRM SENIORITY (after role is answered)
+Only after they answer Phase 3A, ask:
+
+"Got it. And what level are you targeting?
 A — [Detected seniority from JDs]
 B — [One level up]
 C — [One level down, if relevant]
 D — Other"
+
+Wait for their answer before moving to the next phase.
 
 ## PHASE 5A — QUANTIFY ACHIEVEMENTS
 Go through achievements from the resume that lack specific numbers. Reference exact resume text:
@@ -1038,6 +1044,12 @@ After outputting JSON say:
       if (options.length) {
         const group = document.createElement('div');
         group.classList.add('options-group');
+
+        // Usage hint
+        const hint = document.createElement('p');
+        hint.classList.add('options-hint');
+        hint.textContent = 'You can select one or more options — or write your own below.';
+        group.appendChild(hint);
 
         const selected = new Set();
 
