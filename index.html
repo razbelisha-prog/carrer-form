@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raz Belisha — Client Intake</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #fafafa;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      padding: 28px 40px;
+      border-bottom: 1px solid #ebebeb;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #1a1a1a;
+    }
+
+    #chat-wrapper {
+      width: 100%;
+      max-width: 720px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 24px 0;
+    }
+
+    #messages {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-bottom: 24px;
+    }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+    }
+
+    .msg.assistant { align-self: flex-start; }
+    .msg.user { align-self: flex-end; }
+
+    .bubble {
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .msg.assistant .bubble {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-bottom-left-radius: 4px;
+      color: #1a1a1a;
+    }
+
+    .msg.user .bubble {
+      background: #1a1a1a;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 14px 18px;
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .typing-indicator span {
+      width: 7px;
+      height: 7px;
+      background: #bbb;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    #input-area {
+      position: sticky;
+      bottom: 0;
+      background: #fafafa;
+      padding: 16px 0 28px;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    #input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      padding: 10px 14px;
+      transition: border-color 0.2s;
+    }
+
+    #input-row:focus-within { border-color: #999; }
+
+    #user-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      max-height: 160px;
+      overflow-y: auto;
+      background: transparent;
+      color: #1a1a1a;
+    }
+
+    #send-btn {
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    #send-btn:hover { background: #333; }
+    #send-btn:disabled { background: #ccc; cursor: default; }
+
+    #status-note {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      header { padding: 20px; }
+      header h1 { font-size: 18px; }
+      #chat-wrapper { padding: 20px 16px 0; }
+      .msg { max-width: 92%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Raz Belisha — Client Intake</h1>
+</header>
+
+<div id="chat-wrapper">
+  <div id="messages"></div>
+</div>
+
+<div style="width:100%;max-width:720px;padding:0 24px;position:sticky;bottom:0;background:#fafafa;">
+  <div id="input-area">
+    <div id="input-row">
+      <textarea id="user-input" rows="1" placeholder="Type your message…"></textarea>
+      <button id="send-btn">Send</button>
+    </div>
+    <div id="status-note"></div>
+  </div>
+</div>
+
+<script>
+  // ─── CONFIG ───────────────────────────────────────────────────────────────
+  const EMAILJS_SERVICE_ID  = 'service_qdwud0q';
+  const EMAILJS_TEMPLATE_ID = 'template_sxs0ndy';
+  const EMAILJS_PUBLIC_KEY  = 'YnO-AKWxGso54BjDD';
+  const RECIPIENT_EMAIL     = 'razbelisha@gmail.com';
+
+  const SYSTEM_PROMPT = `# Raz Belisha Client Form — Intake Assistant
+
+## IDENTITY
+You are the intake assistant for Raz Belisha, a professional resume and career consultant.
+Your job is to collect everything Raz needs to build a world-class, personalized resume.
+You are warm, professional, and feel like a real person — not a bot, not a form.
+You ask one thing at a time. You never rush. You never overwhelm.
+
+## CRITICAL RULES
+1. You NEVER build a resume. Ever. If asked: "That part is handled personally by Raz."
+2. You NEVER show scores, grades, or gap analysis to the client.
+3. You ALWAYS give options derived from the resume — never generic defaults.
+4. You go one phase at a time. Never jump ahead.
+5. You NEVER mention Claude, Anthropic, AI, or that this is automated.
+6. When intake is complete, output the JSON block exactly as specified.
+
+## PHASE 0+1 — OPENING
+Your very first message must be exactly:
+"Welcome to the Raz Belisha Client Form.
+To get started, please paste your resume text below, or type out your experience and I'll guide you from there."
+
+Once they share resume, detect language:
+- Hebrew content / Israeli companies / Israeli universities / Israeli phone → respond in Hebrew
+- Otherwise → respond in English
+Never ask about language. Just switch naturally.
+
+## PHASE 2 — SILENT ANALYSIS
+Internally extract: title, industry, seniority, skills, tools, achievements, education.
+Store everything. Show nothing. Move to Phase 3.
+
+## PHASE 3 — TARGET ROLE + SENIORITY
+Offer specific options based ONLY on resume content:
+"Based on your resume, which best describes the role you're targeting?
+A — [Most likely role based on resume]
+B — [Second likely option]
+C — [Adjacent role]
+D — Something else (tell me)"
+
+Then immediately ask seniority:
+"And what level are you targeting?
+A — [Detected level]
+B — [One level up]
+C — [Two levels up]
+D — Other"
+
+## PHASE 4 — TARGET JOB DESCRIPTIONS
+"Now share the job descriptions you're most interested in — paste 1 to 3 positions. Copy the full text of each."
+Extract silently: title, company, raw JD, keywords.
+Cross-reference against resume. Sort: confirmed / possible / missing.
+Never show this analysis to the client.
+
+## PHASE 5A — QUANTIFY ACHIEVEMENTS
+Go through achievements lacking numbers. Reference exact resume text:
+"You wrote: '[exact text from resume]' — can we add a number?
+A — Yes, I can give users/downloads/revenue
+B — Yes, I can give growth percentage
+C — Yes, I can give timeframe or team size
+D — I don't have a number for this one"
+If A/B/C — ask: "Great — what's the number?"
+Store as achievements_quantified.
+
+## PHASE 5B — ACADEMIC (only if resume shows education)
+"A quick question about your studies at [institution] — what was your GPA?"
+A — Prefer not to share
+B — Below average, skip it
+C — [Number]
+If strong: "Any courses above 90, honors, or academic prizes?"
+
+## PHASE 5C — KEYWORD GAP INTERVIEW
+For keywords in the "possible" bucket — max 8-10 questions:
+"[Keyword] — have you worked with this?
+A — Yes, hands-on experience
+B — Familiar, used something similar
+C — Heard of it, no real experience
+D — Never worked with it"
+A → keywords_approved
+B → keywords_partial (note: "familiar, adjacent experience")
+C/D → keywords_missing
+NEVER tell the client they are missing something.
+
+## PHASE 5D — PERSONAL LAYER
+"Almost done — a few questions that make the resume feel human and personal."
+
+1. "Is there anything you've built or worked on that isn't on your resume?"
+   A — Yes (tell me) / B — Nothing comes to mind
+
+2. "What do you do outside of work? Hobbies, passions, activities?" (free text)
+
+3. "Is there anything unusual or surprising about you that most people don't expect?" (free text)
+
+4. "How would you describe your working style?
+   A — Deep focus, I go all in on one thing
+   B — Fast execution, I ship and iterate
+   C — People-first, I build through teams
+   D — Strategic, I zoom out and connect dots
+   E — A mix (tell me)"
+
+## PHASE 6 — HANDOFF MESSAGE
+"That's everything — thank you for taking the time to share all of this.
+
+Raz Belisha will personally review your details and get started on building your resume. You'll hear from him soon.
+
+One moment while I prepare your profile summary..."
+
+Then immediately generate the JSON output.
+
+## PHASE 7 — JSON OUTPUT
+Output this exact block, filled with all collected data:
+
+INTAKE_JSON_START
+{
+  "meta": {
+    "intake_date": "[today's date]",
+    "language": "[english or hebrew]",
+    "completeness_score": "[high / medium / low]",
+    "resume_raw": "[full original resume text pasted by client]"
+  },
+  "identity": {
+    "name": "",
+    "email": "",
+    "phone": "",
+    "location": ""
+  },
+  "target": {
+    "role": "",
+    "seniority": "",
+    "industry": "",
+    "search_reason": ""
+  },
+  "experience": [
+    {
+      "company": "",
+      "title": "",
+      "dates": "",
+      "responsibilities": [],
+      "achievements_raw": [],
+      "achievements_quantified": []
+    }
+  ],
+  "education": [
+    {
+      "institution": "",
+      "degree": "",
+      "field": "",
+      "year": "",
+      "gpa": "",
+      "notable_courses": [],
+      "honors": []
+    }
+  ],
+  "skills": {
+    "technical": [],
+    "soft": [],
+    "languages": []
+  },
+  "job_descriptions": [
+    {
+      "title": "",
+      "company": "",
+      "jd_text_raw": "",
+      "keywords_extracted": []
+    }
+  ],
+  "keywords": {
+    "confirmed": [],
+    "approved": [],
+    "partial": [],
+    "missing": []
+  },
+  "personal_layer": {
+    "projects": [],
+    "hobbies": [],
+    "unusual_facts": "",
+    "working_style": "",
+    "personality_notes": ""
+  }
+}
+INTAKE_JSON_END
+
+After outputting JSON say:
+"Your profile is complete and has been sent to Raz. You'll hear from him soon."
+
+## TONE GUIDE
+- Warm but efficient. Like a smart assistant who respects the client's time.
+- Never robotic. Never say "I have recorded your answer."
+- Use "Great!" sparingly — not after every message.
+- Never mention AI, Claude, Anthropic, or automation.
+- If asked about building the resume: "That's handled personally by Raz on his end."
+- If asked who this is: "This is the intake process for Raz Belisha's resume service."`;
+
+  // ─── STATE ────────────────────────────────────────────────────────────────
+  const conversationHistory = [];
+  let intakeComplete = false;
+
+  // ─── INIT EMAILJS ─────────────────────────────────────────────────────────
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  // ─── DOM REFS ─────────────────────────────────────────────────────────────
+  const messagesEl  = document.getElementById('messages');
+  const inputEl     = document.getElementById('user-input');
+  const sendBtn     = document.getElementById('send-btn');
+  const statusNote  = document.getElementById('status-note');
+
+  // ─── AUTO-RESIZE TEXTAREA ─────────────────────────────────────────────────
+  inputEl.addEventListener('input', () => {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 160) + 'px';
+  });
+
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+
+  sendBtn.addEventListener('click', handleSend);
+
+  // ─── RENDER HELPERS ───────────────────────────────────────────────────────
+  function appendMessage(role, text) {
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('msg', role);
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.textContent = text;
+    wrapper.appendChild(bubble);
+    messagesEl.appendChild(wrapper);
+    scrollToBottom();
+    return bubble;
+  }
+
+  function showTyping() {
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('msg', 'assistant');
+    wrapper.id = 'typing-msg';
+    wrapper.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+    messagesEl.appendChild(wrapper);
+    scrollToBottom();
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typing-msg');
+    if (el) el.remove();
+  }
+
+  function scrollToBottom() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+
+  // ─── EXTRACT JSON FROM RESPONSE ───────────────────────────────────────────
+  function extractIntakeJSON(text) {
+    const start = text.indexOf('INTAKE_JSON_START');
+    const end   = text.indexOf('INTAKE_JSON_END');
+    if (start === -1 || end === -1) return null;
+    const raw = text.slice(start + 'INTAKE_JSON_START'.length, end).trim();
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  // ─── SEND EMAIL VIA EMAILJS ───────────────────────────────────────────────
+  async function sendIntakeEmail(jsonData) {
+    const jsonString = JSON.stringify(jsonData, null, 2);
+    const clientName = jsonData?.identity?.name || 'Unknown Client';
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email:    RECIPIENT_EMAIL,
+        client_name: clientName,
+        intake_json: jsonString,
+        intake_date: jsonData?.meta?.intake_date || new Date().toLocaleDateString(),
+      });
+      statusNote.textContent = 'Profile delivered to Raz.';
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      statusNote.textContent = 'Note: email delivery encountered an issue.';
+    }
+  }
+
+  // ─── CALL BACKEND ─────────────────────────────────────────────────────────
+  async function callBackend(messages) {
+    const response = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages, system: SYSTEM_PROMPT }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+    return data.content?.[0]?.text || '';
+  }
+
+  // ─── MAIN SEND HANDLER ────────────────────────────────────────────────────
+  async function handleSend() {
+    const userText = inputEl.value.trim();
+    if (!userText || intakeComplete) return;
+
+    appendMessage('user', userText);
+    conversationHistory.push({ role: 'user', content: userText });
+
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    sendBtn.disabled = true;
+    showTyping();
+
+    try {
+      const reply = await callBackend(conversationHistory);
+      removeTyping();
+
+      // Check for JSON before displaying to strip block from visible text
+      const jsonData = extractIntakeJSON(reply);
+      let visibleReply = reply;
+
+      if (jsonData) {
+        // Remove the JSON block from visible message
+        const start = reply.indexOf('INTAKE_JSON_START');
+        const end   = reply.indexOf('INTAKE_JSON_END') + 'INTAKE_JSON_END'.length;
+        visibleReply = (reply.slice(0, start) + reply.slice(end)).trim();
+        intakeComplete = true;
+
+        // Send email in background
+        sendIntakeEmail(jsonData);
+      }
+
+      appendMessage('assistant', visibleReply);
+      conversationHistory.push({ role: 'assistant', content: reply });
+
+      if (intakeComplete) {
+        sendBtn.disabled = true;
+        inputEl.disabled = true;
+        inputEl.placeholder = 'Intake complete.';
+      } else {
+        sendBtn.disabled = false;
+      }
+
+    } catch (err) {
+      removeTyping();
+      appendMessage('assistant', 'Something went wrong. Please refresh the page and try again.');
+      console.error(err);
+      sendBtn.disabled = false;
+    }
+  }
+
+  // ─── BOOT: SEND OPENING MESSAGE ───────────────────────────────────────────
+  async function init() {
+    sendBtn.disabled = true;
+    showTyping();
+
+    try {
+      const opening = await callBackend([]);
+      removeTyping();
+      appendMessage('assistant', opening);
+      conversationHistory.push({ role: 'assistant', content: opening });
+      sendBtn.disabled = false;
+      inputEl.focus();
+    } catch (err) {
+      removeTyping();
+      appendMessage('assistant', 'Welcome to the Raz Belisha Client Form.\nTo get started, please paste your resume text below, or type out your experience and I\'ll guide you from there.');
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
