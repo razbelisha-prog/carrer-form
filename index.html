@@ -547,9 +547,12 @@
       <button class="upload-remove" id="upload-remove-btn" type="button">✕ Remove</button>
     </div>
 
-    <!-- Divider + paste textarea (hidden when file is uploaded) -->
+    <!-- Divider + paste textarea (hidden when .txt uploaded, always visible for PDF/doc) -->
     <div id="paste-area">
       <div class="paste-divider"><span>or paste your resume text</span></div>
+      <div id="pdf-warning" style="display:none;">
+        <p style="font-size:13px;color:#e67e22;margin-bottom:8px;">⚠️ We can't read PDF or Word files directly — please paste your resume text below.</p>
+      </div>
       <textarea class="intake-textarea" id="resume-text" placeholder="Paste your resume text here — work history, skills, education, anything you have…" rows="6"></textarea>
     </div>
   </div>
@@ -809,6 +812,7 @@ After outputting JSON say:
   const uploadFilenameEl  = document.getElementById('upload-filename');
   const uploadRemoveBtn   = document.getElementById('upload-remove-btn');
   const pasteArea         = document.getElementById('paste-area');
+  const pdfWarning        = document.getElementById('pdf-warning');
   const jdField1          = document.getElementById('jd-1');
   const jdField2          = document.getElementById('jd-2');
   const jdField3          = document.getElementById('jd-3');
@@ -824,28 +828,33 @@ After outputting JSON say:
     uploadFilenameEl.textContent = file.name;
 
     if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-      // Read text directly
-      uploadedResumeText = await file.text();
+      // .txt — read text directly, hide paste area
+      uploadedResumeText            = await file.text();
+      uploadZone.style.display      = 'none';
+      uploadConfirmed.style.display = 'flex';
+      pasteArea.style.display       = 'none';
+      pdfWarning.style.display      = 'none';
     } else {
-      // PDF/doc — store file name; we'll use pasted text if provided
-      uploadedResumeText = `[Uploaded file: ${file.name}]`;
+      // PDF/doc — can't read in browser, show warning + keep paste area visible
+      uploadedResumeText            = '';
+      uploadZone.style.display      = 'none';
+      uploadConfirmed.style.display = 'flex';
+      pasteArea.style.display       = 'block';
+      pdfWarning.style.display      = 'block';
+      resumeTextEl.focus();
     }
-
-    // Show confirmation, hide upload zone and paste area
-    uploadZone.style.display      = 'none';
-    uploadConfirmed.style.display = 'flex';
-    pasteArea.style.display       = 'none';
-    startError.style.display      = 'none';
+    startError.style.display = 'none';
   });
 
   // ─── REMOVE FILE ──────────────────────────────────────────────────────────
   uploadRemoveBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    uploadedResumeText        = '';
-    resumeFileEl.value        = '';
+    uploadedResumeText            = '';
+    resumeFileEl.value            = '';
     uploadZone.style.display      = 'flex';
     uploadConfirmed.style.display = 'none';
     pasteArea.style.display       = 'block';
+    pdfWarning.style.display      = 'none';
   });
 
   // ─── START INTAKE ─────────────────────────────────────────────────────────
